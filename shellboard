@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# general bbs configuation
+BBSNAME='Shellboard Default BBS'
+ADMINGRP='wheel'
+PRIVGRP='bbpriv'
+BBSDATA='/var/bbs'
+CONFIGPATH=$XDG_CONFIG_HOME/.shellboard/config
+
+# content display
+BBNAMEMAXLENGTH=8
+BBPOSTSMAXLENGTH=5
+BBDESCMAXLENGTH='toend'
+
+# default color definitions
+
+BBNAMECOLOR=$(tput setaf 9)
+DESCCOLOR=$(tput setaf 7)
+POSTCOLOR=$(tput setaf 5)
+ERRCOLOR=$(tput setaf 1)
+RESET=$(tput sgr0) 
+
+# some helpful functions
+offset() {
+
+for space in {1..$1}; do
+printf "$2"
+done
+
+}
+
+chkconfig() {
+
+[ "$BBNAMEMAXLENGTH" -lt 8 ] && printf "$ERRCOLOR [!] Your system is misconfigured!\n--> Invalid BBNAMEMAXLANGTH: must be more than 7.$RESET\n"
+[ "$BBPOSTSMAXLENGTH" -lt 8 ] && printf "$ERRCOLOR [!] Your system is misconfigured!\n--> Invalid BBPOSTSMAXLANGTH: must be more than 7.$RESET\n"
+[ "$BBDESCMAXLENGTH" -lt 8 ] && printf "$ERRCOLOR [!] Your system is misconfigured!\n--> Invalid BBDESCMAXLANGTH: must be more than 7.$RESET\n"
+
+}
+
+gotomenu() {
+
+for i in $(ls -1 $BBSDATA); do
+postcnt=$(ls -1 $BBSDATA/$i | wc -l)
+postcntlength=${#postcnt}
+ilength=${#i}
+desc=$(cat $BBSDATA/$i/.desc)
+desclength=${#desc}
+
+printf "$BBNAMECOLOR$i"
+offset $(( $BBNAMEMAXLENGTH - $ilength )) ' ' 
+printf "$RESET  | $POSTCOLOR["
+offset $(( $BBPOSTSMAXLENGTH - $postcntlength )) '0'
+printf "$POSTCNT$RESET]"
+done
+
+}
+#. $CONFIGPATH
+gotomenu
